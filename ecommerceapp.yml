@@ -1,0 +1,37 @@
+---
+- name: Setup Apache Web Server and Deploy Static Website
+  hosts: webservers
+  become: yes
+
+  vars:
+    git_repo_url: "https://github.com/CeeyIT-Solutions/ecomm-3.git"
+    web_root: "/var/www/html"
+
+  tasks:
+    - name: Ensure httpd is installed
+      yum:
+        name: httpd
+        state: present
+
+    - name: Ensure git is installed
+      yum:
+        name: git
+        state: present
+
+    - name: Ensure httpd service is running and enabled
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Remove default html files
+      file:
+        path: "{{ web_root }}/index.html"
+        state: absent
+
+    - name: Clone static website repo
+      git:
+        repo: "{{ git_repo_url }}"
+        dest: "{{ web_root }}"
+        version: master
+        force: yes
